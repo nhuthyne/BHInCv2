@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BH InC - Enterprise Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #0f172a;
+            --accent-color: #3b82f6;
+            --text-color: #334155;
+            --bg-color: #f1f5f9;
+            --white: #ffffff;
+            --shopee-orange: #ee4d2d;
+            --news-bg: #e0f2fe; 
+            --news-text: #0369a1;
+            /* Màu cho thanh thông báo Admin */
+            --admin-bg: #fff7ed;
+            --admin-border: #f97316;
+            --admin-text: #9a3412;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            flex-direction: column;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            overflow: hidden;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* --- CÁC THÀNH PHẦN CŨ --- */
+        .status-bar {
+            background: linear-gradient(135deg, var(--primary-color), #1e293b);
+            color: var(--white);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(15, 23, 42, 0.2);
+        }
+        .clock { font-size: 2.5rem; font-weight: 600; letter-spacing: 1px; margin-bottom: 5px; }
+        .date { font-size: 0.9rem; opacity: 0.8; margin-bottom: 15px; }
+        .weather-info { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 15px; font-size: 0.9rem; }
+        .location-box { display: flex; align-items: center; gap: 5px; }
+
+        /* --- NEWS TICKER (Tin tức chạy) --- */
+        .news-ticker-area {
+            background-color: var(--news-bg);
+            border-radius: 10px;
+            padding: 8px 0;
+            margin-bottom: 15px; /* Giảm khoảng cách để nhường chỗ cho Admin Notice */
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            border: 1px solid #bae6fd;
+            position: relative;
+        }
+        
+        .news-badge {
+            background: var(--accent-color);
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            text-transform: uppercase;
+            box-shadow: 0 2px 5px rgba(59, 130, 246, 0.3);
+            margin-left: 10px;
+            margin-right: 10px;
+            z-index: 2;
+            flex-shrink: 0;
+        }
+
+        .ticker-wrap {
+            width: 100%;
+            overflow: hidden;
+            mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+        }
+
+        .ticker-content {
+            display: flex;
+            width: max-content; 
+            animation: ticker 40s linear infinite; 
+        }
+
+        @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-25%); } 
+        }
+
+        .ticker-item {
+            white-space: nowrap;
+            padding-right: 50px; 
+            font-size: 0.8rem;
+            color: var(--news-text);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+        
+        .ticker-item i { margin-right: 6px; color: var(--accent-color); font-size: 0.7rem; }
+        .time-tag { font-weight: 700; color: #0284c7; margin-right: 5px; font-size: 0.75rem; background: #e0f2fe; padding: 2px 5px; border-radius: 4px; border: 1px solid #bae6fd; }
+
+        /* --- MỚI: ADMIN NOTICE (Thanh thông báo riêng của em) --- */
+        .admin-notice-box {
+            background: var(--admin-bg);
+            border-left: 4px solid var(--admin-border);
+            border-radius: 6px;
+            padding: 10px 15px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-align: left;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+        .admin-notice-box:hover {
+            transform: translateX(5px);
+        }
+        .notice-icon {
+            font-size: 1.2rem;
+            color: var(--admin-border);
+            animation: ring 3s infinite ease-in-out; /* Hiệu ứng rung chuông */
+        }
+        .notice-content {
+            display: flex;
+            flex-direction: column;
+        }
+        .notice-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 800;
+            color: var(--admin-border);
+            margin-bottom: 2px;
+            letter-spacing: 0.5px;
+        }
+        .notice-text {
+            font-size: 0.8rem;
+            color: var(--admin-text);
+            font-weight: 500;
+            line-height: 1.3;
+        }
+        
+        @keyframes ring {
+            0%, 100% { transform: rotate(0); }
+            10% { transform: rotate(15deg); }
+            20% { transform: rotate(-15deg); }
+            30% { transform: rotate(0); }
+        }
+
+        /* --- CÁC PHẦN KHÁC GIỮ NGUYÊN --- */
+        .brand-logo { margin-bottom: 25px; }
+        .brand-logo h1 { font-size: 2rem; color: var(--primary-color); letter-spacing: -1px; }
+        .brand-logo span { color: var(--accent-color); }
+
+        .action-area { display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px; }
+        .btn-business { display: flex; align-items: center; justify-content: space-between; text-decoration: none; background: var(--white); border: 2px solid #e2e8f0; padding: 15px 20px; border-radius: 12px; transition: all 0.3s ease; }
+        .btn-content { display: flex; flex-direction: column; align-items: flex-start; }
+        .btn-title { font-weight: 600; color: var(--primary-color); font-size: 1rem; }
+        .btn-desc { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
+        .btn-icon { font-size: 1.2rem; color: var(--accent-color); background: #eff6ff; padding: 10px; border-radius: 50%; transition: all 0.3s ease; }
+        .btn-business:hover { border-color: var(--accent-color); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(59, 130, 246, 0.1); }
+        .btn-business:hover .btn-icon { background: var(--accent-color); color: var(--white); }
+
+        .contact-label { font-size: 0.75rem; color: #94a3b8; font-weight: 500; margin-bottom: 10px; text-align: left; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 5px; }
+        .contact-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 25px; }
+        .contact-item { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px 10px; text-decoration: none; color: var(--text-color); transition: all 0.2s ease; }
+        .contact-item i { font-size: 1.2rem; margin-bottom: 5px; color: #64748b; }
+        .contact-item span { font-size: 0.7rem; font-weight: 500; }
+        .contact-item:hover { transform: translateY(-2px); border-color: transparent; }
+        .contact-item.email:hover { background: #fee2e2; color: #ef4444; } .contact-item.email:hover i { color: #ef4444; }
+        .contact-item.zalo:hover { background: #dcfce7; color: #10b981; } .contact-item.zalo:hover i { color: #10b981; }
+        .contact-item.fb:hover { background: #dbeafe; color: #2563eb; } .contact-item.fb:hover i { color: #2563eb; }
+
+        .ad-section { margin-top: 10px; padding: 15px; background-color: #f8fafc; border-radius: 12px; border: 1px dashed #cbd5e1; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 25px; }
+        .ad-label { font-size: 0.65rem; text-transform: uppercase; color: #94a3b8; letter-spacing: 1px; margin-bottom: 10px; font-weight: 600; }
+        
+        /* --- BOTTOM PRODUCTS SECTION --- */
+        .bottom-shop-section {
+            border-top: 2px dashed #e2e8f0;
+            padding-top: 20px;
+            margin-bottom: 10px;
+        }
+        .shop-header {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .shop-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px;
+        }
+        
+        .mini-product {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.2s;
+        }
+        .mini-product:hover { border-color: var(--shopee-orange); transform: translateY(-2px); }
+        
+        .mini-img { width: 100%; height: 100px; background: #f8fafc; display: flex; align-items: center; justify-content: center; padding: 5px; }
+        .mini-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        
+        .mini-info { padding: 10px; text-align: left; display: flex; flex-direction: column; height: 100%; }
+        .mini-title { font-size: 0.75rem; font-weight: 600; color: var(--text-color); margin-bottom: 5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex-grow: 1; }
+        .mini-btn { background: var(--shopee-orange); color: white; font-size: 0.7rem; text-align: center; padding: 5px; border-radius: 4px; text-decoration: none; margin-top: 5px; }
+
+        .footer { font-size: 0.7rem; color: #94a3b8; }
+
+        /* === POPUP MODAL STYLES === */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(15, 23, 42, 0.7); z-index: 9999;
+            display: none; justify-content: center; align-items: center; padding: 20px;
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: var(--white); width: 100%; max-width: 450px;
+            border-radius: 20px; padding: 25px; position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-height: 90vh; overflow-y: auto;
+        }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 1.8rem; color: #94a3b8; cursor: pointer; transition: color 0.2s; line-height: 1; z-index: 10; }
+        .close-btn:hover { color: var(--shopee-orange); }
+        .modal-header { text-align: center; margin-bottom: 20px; padding-right: 20px; }
+        .modal-title { font-size: 1.2rem; font-weight: 700; color: var(--primary-color); margin-bottom: 8px; }
+        .modal-subtitle { font-size: 0.85rem; color: #64748b; font-style: italic; background: #f1f5f9; padding: 8px 15px; border-radius: 20px; display: inline-block; }
+        
+        .popup-product-list { display: flex; flex-direction: column; gap: 15px; }
+        .aff-product-card { border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; display: flex; flex-direction: row; align-items: center; transition: all 0.2s; }
+        .aff-img-link { width: 100px; height: 100px; flex-shrink: 0; background: #f8fafc; padding: 5px; }
+        .aff-img-link img { width: 100%; height: 100%; object-fit: contain; }
+        .aff-info { padding: 10px 15px; flex-grow: 1; text-align: left; }
+        .aff-title { font-size: 0.9rem; font-weight: 600; color: var(--text-color); text-decoration: none; display: block; margin-bottom: 5px; line-height: 1.3; }
+        .btn-shopee-sm { display: inline-block; background: var(--shopee-orange); color: white; font-size: 0.75rem; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-weight: 500; margin-top: 5px; }
+
+        /* === TOAST === */
+        #toast {
+            visibility: hidden; min-width: 250px; background-color: rgba(15, 23, 42, 0.9);
+            color: #fff; text-align: center; border-radius: 50px; padding: 12px 20px;
+            position: fixed; z-index: 10000; left: 50%; bottom: 30px; transform: translateX(-50%);
+            font-size: 0.8rem; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            opacity: 0; transition: opacity 0.5s, bottom 0.5s;
+        }
+        #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="brand-logo">
+            <h1>BH <span>InC.</span></h1>
+            <p style="font-size: 0.8rem; color: #64748b;">Enterprise Solutions</p>
+        </div>
+
+        <div class="status-bar">
+            <div class="clock" id="clock">00:00</div>
+            <div class="date" id="date">Đang tải...</div>
+            <div class="weather-info">
+                <div class="location-box">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span id="location">Định vị...</span>
+                </div>
+                <div class="temp-box">
+                    <i class="fas fa-cloud-sun" id="weather-icon"></i>
+                    <span id="temperature">--°C</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="news-ticker-area">
+            <div class="news-badge">TIN MỚI</div>
+            <div class="ticker-wrap">
+                <div class="ticker-content" id="news-feed">
+                    <div class="ticker-item"><i class="fas fa-circle-notch fa-spin"></i> Đang cập nhật tin tức Kinh tế - Luật & Thế giới...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-notice-box">
+            <div class="notice-icon">
+                <i class="fas fa-bullhorn"></i>
+            </div>
+            <div class="notice-content">
+                <span class="notice-title">THÔNG BÁO TỪ BH INC.</span>
+                <span class="notice-text">Chào mừng quý đối tác & khách hàng truy cập Cổng thông tin. Hệ thống đang hoạt động bình thường.</span>
+            </div>
+        </div>
+        <div class="action-area">
+            <a href="https://nhuthyne.github.io/baohyinc/" class="btn-business" target="_blank">
+                <div class="btn-content">
+                    <span class="btn-title">BH Code Portal</span>
+                    <span class="btn-desc">Hệ thống Link Code quản trị</span>
+                </div>
+                <div class="btn-icon">
+                    <i class="fas fa-code"></i>
+                </div>
+            </a>
+
+            <a href="https://nhuthyne.github.io/Baohyprintandpdf/" class="btn-business" target="_blank">
+                <div class="btn-content">
+                    <span class="btn-title">Smart Print Tools</span>
+                    <span class="btn-desc">Tách file in ấn chuyên dụng (1 mặt)</span>
+                </div>
+                <div class="btn-icon">
+                    <i class="fas fa-print"></i>
+                </div>
+            </a>
+        </div>
+
+        <div class="contact-label">Contact Work</div>
+        <div class="contact-grid">
+            <a href="mailto:Nhuthyne@gmail.com" class="contact-item email">
+                <i class="fas fa-envelope"></i><span>Email</span>
+            </a>
+            <a href="https://zalo.me/0376138554" class="contact-item zalo" target="_blank">
+                <i class="fas fa-phone-alt"></i><span>Zalo</span>
+            </a>
+            <a href="https://www.facebook.com/nhuthynee?" class="contact-item fb" target="_blank">
+                <i class="fab fa-facebook-f"></i><span>Social</span>
+            </a>
+        </div>
+
+        <div class="ad-section">
+            <div class="ad-label">Sponsored Partner</div>
+            <script>
+                atOptions = {
+                    'key' : 'add18c766f1b5fa58223d889f64cca94',
+                    'format' : 'iframe',
+                    'height' : 250,
+                    'width' : 300,
+                    'params' : {}
+                };
+            </script>
+            <script src="https://www.highperformanceformat.com/add18c766f1b5fa58223d889f64cca94/invoke.js"></script>
+        </div>
+
+        <div class="bottom-shop-section">
+            <div class="shop-header">
+                <i class="fas fa-star" style="color: #f59e0b;"></i> Góc Văn Phòng Phẩm
+            </div>
+            <div class="shop-grid">
+                <div class="mini-product">
+                    <div class="mini-img">
+                        <img src="https://i.imgur.com/rZP2L0U.jpeg" alt="Giấy A5">
+                    </div>
+                    <div class="mini-info">
+                        <div class="mini-title">Giấy in Thiên Long A5 - Chuẩn VP</div>
+                        <a href="https://s.shopee.vn/AAB3hdmEro" target="_blank" class="mini-btn">Mua ngay</a>
+                    </div>
+                </div>
+                <div class="mini-product">
+                    <div class="mini-img">
+                        <img src="https://i.imgur.com/ta81G4g.jpeg" alt="Giấy A4">
+                    </div>
+                    <div class="mini-info">
+                        <div class="mini-title">Giấy in Thiên Long A4 Copy</div>
+                        <a href="https://s.shopee.vn/30htA5wPju" target="_blank" class="mini-btn">Mua ngay</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            © 2026 BH InC. All rights reserved.<br>Designed for Bao Hy.
+        </div>
+    </div>
+
+    <div id="affiliateModal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closePopup()">&times;</span>
+            <div class="modal-header">
+                <div class="modal-title"><i class="fas fa-star" style="color: #f59e0b;"></i> Góc Văn Phòng Phẩm</div>
+                <div class="modal-subtitle">"Nếu có nhu cầu về giấy in, hãy ủng hộ BH InC để duy trì hệ thống nhé!"</div>
+            </div>
+            <div class="popup-product-list">
+                <div class="aff-product-card">
+                    <a href="https://s.shopee.vn/AAB3hdmEro" target="_blank" class="aff-img-link">
+                        <img src="https://i.imgur.com/rZP2L0U.jpeg" alt="Giấy A5">
+                    </a>
+                    <div class="aff-info">
+                        <a href="https://s.shopee.vn/AAB3hdmEro" target="_blank" class="aff-title">Giấy in Thiên Long A5 - Chuẩn văn phòng</a>
+                        <a href="https://s.shopee.vn/AAB3hdmEro" target="_blank" class="btn-shopee-sm">Xem ngay</a>
+                    </div>
+                </div>
+                <div class="aff-product-card">
+                    <a href="https://s.shopee.vn/30htA5wPju" target="_blank" class="aff-img-link">
+                        <img src="https://i.imgur.com/ta81G4g.jpeg" alt="Giấy A4">
+                    </a>
+                    <div class="aff-info">
+                        <a href="https://s.shopee.vn/30htA5wPju" target="_blank" class="aff-title">Giấy in đa năng Thiên Long A4 Copy</a>
+                        <a href="https://s.shopee.vn/30htA5wPju" target="_blank" class="btn-shopee-sm">Xem ngay</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast">Nếu có nhu cầu, bạn lướt xuống cuối trang để ủng hộ nhé! ❤️</div>
+
+    <script>
+        // 1. LOGIC LẤY TIN TỨC ĐA NGUỒN & MỚI NHẤT
+        async function fetchNews() {
+            const feeds = [
+                'https://vnexpress.net/rss/kinh-doanh.rss',
+                'https://vnexpress.net/rss/phap-luat.rss',
+                'https://vnexpress.net/rss/the-gioi.rss'
+            ];
+            const newsContainer = document.getElementById('news-feed');
+            
+            try {
+                // Thêm tham số &t=Date.now() để ÉP BUỘC server không dùng cache cũ
+                const promises = feeds.map(feed => 
+                    fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed)}&_t=${Date.now()}`)
+                    .then(res => res.json())
+                );
+
+                const results = await Promise.all(promises);
+                let allItems = [];
+
+                results.forEach(data => {
+                    if(data.status === 'ok') {
+                        allItems = allItems.concat(data.items);
+                    }
+                });
+
+                allItems.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+                const topItems = allItems.slice(0, 8);
+                
+                let rawHtml = '';
+                topItems.forEach(item => {
+                    const pubDate = new Date(item.pubDate);
+                    const timeStr = pubDate.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+                    
+                    let icon = 'fa-newspaper';
+                    if (item.link.includes('kinh-doanh')) icon = 'fa-chart-line';
+                    else if (item.link.includes('phap-luat')) icon = 'fa-gavel';
+                    else if (item.link.includes('the-gioi')) icon = 'fa-globe';
+
+                    rawHtml += `
+                        <div class="ticker-item">
+                            <span class="time-tag">[${timeStr}]</span>
+                            <i class="fas ${icon}"></i> 
+                            ${item.title}
+                        </div>
+                    `;
+                });
+
+                newsContainer.innerHTML = rawHtml + rawHtml + rawHtml + rawHtml;
+
+            } catch (error) {
+                const fallbackHtml = `
+                    <div class="ticker-item"><i class="fas fa-chart-line"></i> Thị trường chứng khoán: Mã ngân hàng tăng mạnh phiên sáng.</div>
+                    <div class="ticker-item"><i class="fas fa-gavel"></i> Bộ Tư pháp đề xuất sửa đổi luật Công chứng.</div>
+                    <div class="ticker-item"><i class="fas fa-globe"></i> Giá vàng thế giới biến động mạnh do chính sách FED.</div>
+                    <div class="ticker-item"><i class="fas fa-bolt"></i> Cập nhật: Bão số 1 suy yếu thành áp thấp nhiệt đới.</div>
+                `;
+                newsContainer.innerHTML = fallbackHtml + fallbackHtml + fallbackHtml + fallbackHtml;
+            }
+        }
+
+        // 2. LOGIC CHO POPUP & TOAST
+        function checkPopup() {
+            const COOLDOWN_TIME = 15 * 60 * 1000; 
+            const lastClosedTime = localStorage.getItem('bh_popup_closed_time');
+            const now = new Date().getTime();
+
+            if (!lastClosedTime || (now - lastClosedTime > COOLDOWN_TIME)) {
+                setTimeout(() => {
+                    document.getElementById('affiliateModal').style.display = 'flex';
+                }, 1500);
+            }
+        }
+
+        function closePopup() {
+            const modal = document.getElementById('affiliateModal');
+            modal.style.display = 'none'; 
+            const now = new Date().getTime();
+            localStorage.setItem('bh_popup_closed_time', now);
+            showToast();
+        }
+
+        function showToast() {
+            const toast = document.getElementById("toast");
+            toast.className = "show";
+            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
+        // 3. LOGIC ĐỒNG HỒ & THỜI TIẾT
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+            const dateString = now.toLocaleDateString('vi-VN', { weekday: 'long', day: 'numeric', month: 'long' });
+            document.getElementById('clock').textContent = timeString;
+            document.getElementById('date').textContent = dateString;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        function getWeather(lat, lon) {
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
+            fetch(url).then(response => response.json()).then(data => {
+                const temp = Math.round(data.current_weather.temperature);
+                document.getElementById('temperature').textContent = `${temp}°C`;
+                const code = data.current_weather.weathercode;
+                const iconEl = document.getElementById('weather-icon');
+                if (code <= 3) iconEl.className = "fas fa-sun";
+                else if (code <= 67) iconEl.className = "fas fa-cloud-rain";
+                else if (code <= 99) iconEl.className = "fas fa-bolt";
+                else iconEl.className = "fas fa-cloud";
+            }).catch(err => {
+                document.getElementById('temperature').textContent = "N/A";
+            });
+        }
+
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        document.getElementById('location').textContent = "Vị trí của bạn"; 
+                        getWeather(lat, lon);
+                    },
+                    (error) => {
+                        document.getElementById('location').textContent = "Chưa cấp quyền";
+                        document.getElementById('temperature').textContent = "--";
+                    }
+                );
+            } else {
+                document.getElementById('location').textContent = "Không hỗ trợ";
+            }
+        }
+        
+        window.onload = function() {
+            getLocation();
+            checkPopup();
+            fetchNews();
+        };
+    </script>
+</body>
+</html>
